@@ -211,3 +211,13 @@ placed in the dungeon (no leveling system yet).
 - Multiple dungeon levels, persistent runs, save/load.
 - Broader class and monster roster.
 - Full inventory management (equip, stack, sell).
+- **Meta-progression across runs.** This slice's runs are fully isolated
+  (no save/load, no persistence per Non-goals), so there's no sense of
+  progress between deaths yet. A roguelike's repetitive, randomized core
+  loop typically needs a meta layer to feel rewarding over many runs.
+  Candidate directions raised for a future spec: unlocking additional
+  classes beyond the MVP starting set, and unlocking alternate starting
+  loadouts/items that change how a class plays. Both imply *some*
+  persistence layer (at minimum browser storage) that doesn't exist yet
+  in this slice — sequencing that persistence mechanism is itself a
+  design question for that future spec, not assumed here.
