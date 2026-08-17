@@ -107,7 +107,10 @@ export function generateDungeon(
   const startPosition = roomCenter(rooms[0])
   const stairsPosition = roomCenter(rooms[rooms.length - 1])
 
-  const occupied = new Set<string>([`${startPosition.x},${startPosition.y}`])
+  const occupied = new Set<string>([
+    `${startPosition.x},${startPosition.y}`,
+    `${stairsPosition.x},${stairsPosition.y}`,
+  ])
   const monsters: MonsterInstance[] = []
   const items: ItemDrop[] = []
 

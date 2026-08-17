@@ -64,12 +64,14 @@ describe('generateDungeon', () => {
     expect(reachable.has(`${dungeon.stairsPosition.x},${dungeon.stairsPosition.y}`)).toBe(true)
   })
 
-  it('places at least one monster, keeps monsters/items on floor tiles, off the start', () => {
+  it('places at least one monster, keeps monsters/items on floor tiles, off the start and stairs', () => {
     const dungeon = generateDungeon(mulberry32(3), monsterDefs, itemDefs)
     expect(dungeon.monsters.length).toBeGreaterThanOrEqual(1)
     expect(dungeon.monsters.length).toBeLessThan(dungeon.rooms.length)
     const onStart = (pos: { x: number; y: number }) =>
       pos.x === dungeon.startPosition.x && pos.y === dungeon.startPosition.y
+    const onStairs = (pos: { x: number; y: number }) =>
+      pos.x === dungeon.stairsPosition.x && pos.y === dungeon.stairsPosition.y
     for (const monster of dungeon.monsters) {
       expect(dungeon.grid[monster.position.y][monster.position.x]).toBe('floor')
       expect(onStart(monster.position)).toBe(false)
@@ -77,6 +79,21 @@ describe('generateDungeon', () => {
     for (const item of dungeon.items) {
       expect(dungeon.grid[item.position.y][item.position.x]).toBe('floor')
       expect(onStart(item.position)).toBe(false)
+    }
+    expect(dungeon.monsters.some((m) => onStairs(m.position))).toBe(false)
+    expect(dungeon.items.some((i) => onStairs(i.position))).toBe(false)
+  })
+
+  it('never places a monster or item on the stairs across many seeds', () => {
+    // Seeds 4, 17, 33 and 48 all put a monster or item on the stairs before the fix, where
+    // DungeonView's '>' glyph hid it from the player.
+    const seeds = Array.from({ length: 60 }, (_, i) => i + 1)
+    for (const seed of seeds) {
+      const dungeon = generateDungeon(mulberry32(seed), monsterDefs, itemDefs)
+      const onStairs = (pos: { x: number; y: number }) =>
+        pos.x === dungeon.stairsPosition.x && pos.y === dungeon.stairsPosition.y
+      expect(dungeon.monsters.some((m) => onStairs(m.position))).toBe(false)
+      expect(dungeon.items.some((i) => onStairs(i.position))).toBe(false)
     }
   })
 })
