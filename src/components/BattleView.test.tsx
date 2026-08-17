@@ -46,7 +46,7 @@ const battle: BattleState = {
 describe('BattleView', () => {
   it('shows both combatants and the log', () => {
     render(<BattleView player={player} classDef={classDef} battle={battle} monsterDef={monsterDef} hasItem={false} onAction={() => {}} />)
-    expect(screen.getByText(/Goblin/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Goblin' })).toBeInTheDocument()
     expect(screen.getByText(/4\/7/)).toBeInTheDocument()
     expect(screen.getByText(/10\/12/)).toBeInTheDocument()
     expect(screen.getByText('A Goblin blocks your path!')).toBeInTheDocument()
