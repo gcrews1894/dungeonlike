@@ -22,7 +22,7 @@ export default function BattleView({ player, classDef, battle, monsterDef, hasIt
       </p>
       <div>
         <button onClick={() => onAction('attack')}>{classDef.attack.name}</button>
-        <button onClick={() => onAction('ability')} disabled={battle.abilityUsed}>
+        <button onClick={() => onAction('ability')} disabled={player.abilityUsed}>
           {classDef.ability.name}
         </button>
         <button onClick={() => onAction('item')} disabled={!hasItem}>

@@ -13,6 +13,7 @@ const player: Player = {
   ac: 16,
   inventory: [],
   position: { x: 1, y: 1 },
+  abilityUsed: false,
 }
 
 const classDef: ClassDefinition = {
@@ -40,7 +41,6 @@ const monsterDef: MonsterDefinition = {
 const battle: BattleState = {
   monster: { defSlug: 'goblin', hp: 4, position: { x: 2, y: 1 } },
   log: ['A Goblin blocks your path!'],
-  abilityUsed: false,
 }
 
 describe('BattleView', () => {
@@ -62,9 +62,9 @@ describe('BattleView', () => {
   it('disables the ability button once it has been used', () => {
     render(
       <BattleView
-        player={player}
+        player={{ ...player, abilityUsed: true }}
         classDef={classDef}
-        battle={{ ...battle, abilityUsed: true }}
+        battle={battle}
         monsterDef={monsterDef}
         hasItem={false}
         onAction={() => {}}

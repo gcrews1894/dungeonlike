@@ -53,6 +53,7 @@ export function selectClass(
     ac: classDef.armorClass,
     inventory: [],
     position: dungeon.startPosition,
+    abilityUsed: false,
   }
 
   return { mode: 'exploring', player, dungeon, battle: null }
@@ -85,7 +86,7 @@ export function movePlayer(
     return {
       ...state,
       mode: 'battle',
-      battle: { monster: monsterHere, log: [`A ${monsterDef.name} blocks your path!`], abilityUsed: false },
+      battle: { monster: monsterHere, log: [`A ${monsterDef.name} blocks your path!`] },
     }
   }
 
@@ -121,7 +122,18 @@ export function chooseBattleAction(
   if (state.mode !== 'battle' || !state.player || !state.battle || !state.dungeon) return state
 
   if (choice === 'flee') {
-    return { ...state, mode: 'exploring', battle: null }
+    const monster = state.battle.monster
+    return {
+      ...state,
+      mode: 'exploring',
+      dungeon: {
+        ...state.dungeon,
+        monsters: state.dungeon.monsters.map((m) =>
+          m.position.x === monster.position.x && m.position.y === monster.position.y ? monster : m
+        ),
+      },
+      battle: null,
+    }
   }
 
   const classDef = classLookup(classDefs, state.player.classSlug)
@@ -130,7 +142,6 @@ export function chooseBattleAction(
   let player = state.player
   let monster = state.battle.monster
   const log = [...state.battle.log]
-  let abilityUsed = state.battle.abilityUsed
   let playerActed = true
 
   if (choice === 'attack') {
@@ -148,14 +159,13 @@ export function chooseBattleAction(
     log.push(result.log)
     monster = { ...monster, hp: Math.max(0, monster.hp - result.damage) }
   } else if (choice === 'ability') {
-    if (abilityUsed) {
-      log.push(`${player.className}'s ${classDef.ability.name} has already been used this battle.`)
+    if (player.abilityUsed) {
+      log.push(`${player.className}'s ${classDef.ability.name} has already been used this run.`)
       playerActed = false
     } else if (classDef.ability.kind === 'heal') {
       const result = resolveHeal(player.className, classDef.ability.name, classDef.ability.healDice, classDef.ability.healBonus, rng)
-      player = { ...player, hp: Math.min(player.maxHp, player.hp + result.amount) }
+      player = { ...player, hp: Math.min(player.maxHp, player.hp + result.amount), abilityUsed: true }
       log.push(result.log)
-      abilityUsed = true
     } else {
       const result = resolveAttack(
         player.className,
@@ -170,7 +180,7 @@ export function chooseBattleAction(
       )
       log.push(`${player.className} uses ${classDef.ability.name}! ${result.log}`)
       monster = { ...monster, hp: Math.max(0, monster.hp - result.damage) }
-      abilityUsed = true
+      player = { ...player, abilityUsed: true }
     }
   } else if (choice === 'item') {
     const potionSlug = player.inventory.find((slug) => itemDefLookup(itemDefs, slug).effect.kind === 'heal')
@@ -220,7 +230,7 @@ export function chooseBattleAction(
     player = { ...player, hp: Math.max(0, player.hp - monsterResult.damage) }
   }
 
-  const battle: BattleState = { monster, log, abilityUsed }
+  const battle: BattleState = { monster, log }
 
   if (player.hp <= 0) {
     return { ...state, mode: 'game-over', player, battle }

@@ -74,6 +74,7 @@ export type Player = {
   ac: number
   inventory: string[]
   position: Position
+  abilityUsed: boolean
 }
 
 export type DungeonState = {
@@ -88,7 +89,6 @@ export type DungeonState = {
 export type BattleState = {
   monster: MonsterInstance
   log: string[]
-  abilityUsed: boolean
 }
 
 export type GameMode = 'character-select' | 'exploring' | 'battle' | 'victory' | 'game-over'

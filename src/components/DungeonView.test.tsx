@@ -27,6 +27,7 @@ const player: Player = {
   ac: 16,
   inventory: [],
   position: { x: 1, y: 1 },
+  abilityUsed: false,
 }
 
 const monsterDefs: MonsterDefinition[] = []

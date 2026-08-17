@@ -58,6 +58,7 @@ function fixtureState(overrides: Partial<GameState> = {}): GameState {
     ac: 16,
     inventory: [],
     position: { x: 1, y: 1 },
+    abilityUsed: false,
   }
   return { mode: 'exploring', player, dungeon, battle: null, ...overrides }
 }
@@ -123,7 +124,7 @@ function battleFixture(overrides: Partial<GameState> = {}): GameState {
   return {
     ...state,
     mode: 'battle',
-    battle: { monster: { defSlug: 'goblin', hp: 7, position: { x: 2, y: 1 } }, log: [], abilityUsed: false },
+    battle: { monster: { defSlug: 'goblin', hp: 7, position: { x: 2, y: 1 } }, log: [] },
     ...overrides,
   }
 }
@@ -150,6 +151,38 @@ describe('chooseBattleAction', () => {
     expect(result.player?.hp).toBe(12)
   })
 
+  it('persists damage dealt to the monster when the player flees', () => {
+    const state = battleFixture()
+    // player hits for 5 (monster hp 7 -> 2), monster hits back
+    const rng = sequenceRng([forceRoll(20, 15), forceRoll(8, 3), forceRoll(20, 15), forceRoll(6, 3)])
+    const wounded = chooseBattleAction(state, 'attack', classDefs, monsterDefs, itemDefs, rng)
+    expect(wounded.battle?.monster.hp).toBe(2)
+
+    const result = chooseBattleAction(wounded, 'flee', classDefs, monsterDefs, itemDefs)
+    expect(result.mode).toBe('exploring')
+    expect(result.dungeon?.monsters).toHaveLength(1)
+    expect(result.dungeon?.monsters[0].hp).toBe(2)
+    expect(result.dungeon?.monsters[0].position).toEqual({ x: 2, y: 1 })
+  })
+
+  it('keeps the ability spent after fleeing and re-entering a battle', () => {
+    const state = battleFixture()
+    // Second Wind heals, monster's counter-attack is a natural 1 (auto miss)
+    const rng = sequenceRng([forceRoll(10, 7), forceRoll(20, 1)])
+    const afterAbility = chooseBattleAction(state, 'ability', classDefs, monsterDefs, itemDefs, rng)
+    expect(afterAbility.player?.abilityUsed).toBe(true)
+
+    const fled = chooseBattleAction(afterAbility, 'flee', classDefs, monsterDefs, itemDefs)
+    const reEntered = movePlayer(fled, 1, 0, monsterDefs)
+    expect(reEntered.mode).toBe('battle')
+    expect(reEntered.player?.abilityUsed).toBe(true)
+
+    const rng2 = sequenceRng([]) // must not be called — the ability is spent for the run
+    const retry = chooseBattleAction(reEntered, 'ability', classDefs, monsterDefs, itemDefs, rng2)
+    expect(retry.battle?.log.at(-1)).toContain('already been used')
+    expect(retry.player?.abilityUsed).toBe(true)
+  })
+
   it('resolves a hit-then-hit attack exchange (monster survives)', () => {
     const state = battleFixture()
     // player attack: d20=15 (19 vs AC15, hits), damage d8=3 -> 5; monster hp 7-5=2, survives
@@ -164,7 +197,7 @@ describe('chooseBattleAction', () => {
 
   it('defeats the monster and returns to exploring when its HP hits 0', () => {
     const state = battleFixture({
-      battle: { monster: { defSlug: 'goblin', hp: 1, position: { x: 2, y: 1 } }, log: [], abilityUsed: false },
+      battle: { monster: { defSlug: 'goblin', hp: 1, position: { x: 2, y: 1 } }, log: [] },
     })
     const rng = sequenceRng([forceRoll(20, 15), forceRoll(8, 6)]) // player hits for 8, monster (hp 1) dies
     const result = chooseBattleAction(state, 'attack', classDefs, monsterDefs, itemDefs, rng)
@@ -189,7 +222,7 @@ describe('chooseBattleAction', () => {
     // turn, so the monster acts too — force its attack roll to a natural 1 (auto-miss, no damage roll needed)
     const rng1 = sequenceRng([forceRoll(10, 7), forceRoll(20, 1)])
     const afterFirst = chooseBattleAction(state, 'ability', classDefs, monsterDefs, itemDefs, rng1)
-    expect(afterFirst.battle?.abilityUsed).toBe(true)
+    expect(afterFirst.player?.abilityUsed).toBe(true)
     expect(afterFirst.player?.hp).toBe(12) // capped at maxHp, was already full; monster's turn missed
 
     const rng2 = sequenceRng([]) // must not be called — no monster turn on a wasted click
