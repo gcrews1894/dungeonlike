@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "fighter",
+    "name": "Fighter",
+    "hitDie": "1d10",
+    "maxHp": 12,
+    "armorClass": 16,
+    "abilityScores": { "str": 15, "dex": 13, "con": 14, "int": 8, "wis": 12, "cha": 10 },
+    "attack": { "kind": "attack", "name": "Longsword", "attackBonus": 4, "damageDice": "1d8", "damageBonus": 2, "damageType": "slashing" },
+    "ability": { "kind": "heal", "name": "Second Wind", "healDice": "1d10", "healBonus": 1 }
+  },
+  {
+    "slug": "wizard",
+    "name": "Wizard",
+    "hitDie": "1d6",
+    "maxHp": 7,
+    "armorClass": 12,
+    "abilityScores": { "str": 8, "dex": 14, "con": 13, "int": 15, "wis": 12, "cha": 10 },
+    "attack": { "kind": "attack", "name": "Fire Bolt", "attackBonus": 4, "damageDice": "1d10", "damageBonus": 0, "damageType": "fire" },
+    "ability": { "kind": "attack", "name": "Ray of Frost", "attackBonus": 4, "damageDice": "1d8", "damageBonus": 0, "damageType": "cold" }
+  },
+  {
+    "slug": "rogue",
+    "name": "Rogue",
+    "hitDie": "1d8",
+    "maxHp": 10,
+    "armorClass": 13,
+    "abilityScores": { "str": 10, "dex": 15, "con": 14, "int": 12, "wis": 13, "cha": 8 },
+    "attack": { "kind": "attack", "name": "Rapier", "attackBonus": 4, "damageDice": "1d8", "damageBonus": 2, "damageType": "piercing" },
+    "ability": { "kind": "attack", "name": "Sneak Attack", "attackBonus": 4, "damageDice": "1d8", "damageBonus": 2, "damageType": "piercing", "bonusDamageDice": "1d6" }
+  }
+]

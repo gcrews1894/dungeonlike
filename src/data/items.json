@@ -1,0 +1,8 @@
+[
+  {
+    "slug": "potion-of-healing",
+    "name": "Potion of Healing",
+    "glyph": "!",
+    "effect": { "kind": "heal", "healDice": "2d4", "healBonus": 2 }
+  }
+]

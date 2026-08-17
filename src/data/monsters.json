@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "goblin",
+    "name": "Goblin",
+    "glyph": "g",
+    "armorClass": 15,
+    "maxHp": 7,
+    "abilityScores": { "str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8 },
+    "challengeRating": "1/4",
+    "attack": { "kind": "attack", "name": "Scimitar", "attackBonus": 4, "damageDice": "1d6", "damageBonus": 2, "damageType": "slashing" }
+  },
+  {
+    "slug": "skeleton",
+    "name": "Skeleton",
+    "glyph": "s",
+    "armorClass": 13,
+    "maxHp": 13,
+    "abilityScores": { "str": 10, "dex": 14, "con": 15, "int": 6, "wis": 8, "cha": 5 },
+    "challengeRating": "1/4",
+    "attack": { "kind": "attack", "name": "Shortsword", "attackBonus": 4, "damageDice": "1d6", "damageBonus": 2, "damageType": "piercing" }
+  },
+  {
+    "slug": "giant-rat",
+    "name": "Giant Rat",
+    "glyph": "r",
+    "armorClass": 12,
+    "maxHp": 7,
+    "abilityScores": { "str": 7, "dex": 15, "con": 11, "int": 2, "wis": 10, "cha": 4 },
+    "challengeRating": "1/8",
+    "attack": { "kind": "attack", "name": "Bite", "attackBonus": 4, "damageDice": "1d4", "damageBonus": 2, "damageType": "piercing" }
+  },
+  {
+    "slug": "kobold",
+    "name": "Kobold",
+    "glyph": "k",
+    "armorClass": 12,
+    "maxHp": 5,
+    "abilityScores": { "str": 7, "dex": 15, "con": 9, "int": 8, "wis": 7, "cha": 8 },
+    "challengeRating": "1/8",
+    "attack": { "kind": "attack", "name": "Dagger", "attackBonus": 4, "damageDice": "1d4", "damageBonus": 2, "damageType": "piercing" }
+  },
+  {
+    "slug": "orc",
+    "name": "Orc",
+    "glyph": "o",
+    "armorClass": 13,
+    "maxHp": 15,
+    "abilityScores": { "str": 16, "dex": 12, "con": 16, "int": 7, "wis": 11, "cha": 10 },
+    "challengeRating": "1/2",
+    "attack": { "kind": "attack", "name": "Greataxe", "attackBonus": 5, "damageDice": "1d12", "damageBonus": 3, "damageType": "slashing" }
+  }
+]
