@@ -1,0 +1,706 @@
+<title>Dungeonlike Visual Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+  :root {
+    /* --- brief palette, used as the artifact's own tokens --- */
+    --screen-bezel: #0b0b12;
+    --bezel-2: #05060c;
+    --panel-fill: #243052;
+    --panel-fill-alt: #1a2340;
+    --panel-hi: #5b74b8;
+    --panel-lo: #111832;
+    --panel-edge: #e8ecf8;
+    --ink: #f2f4ff;
+    --ink-dim: #9aa6cc;
+    --ink-shadow: #0a0e1e;
+    --cursor: #ffd23f;
+
+    --floor: #3a3550;
+    --floor-alt: #332e48;
+    --wall: #1c1a2b;
+    --wall-top: #2a2740;
+    --torch: #ffb038;
+    --fog: #05060c;
+
+    --hp-high: #57d977;
+    --hp-mid: #ffd23f;
+    --hp-low: #f0523f;
+    --bar-track: #0e1120;
+    --danger: #f0523f;
+    --good: #57d977;
+    --gold: #ffd23f;
+
+    --fighter: #c8483a;
+    --wizard: #4f7fe0;
+    --rogue: #63b96b;
+    --dmg-slashing: #d7d2c4;
+    --dmg-piercing: #b8c6e0;
+    --dmg-fire: #ff7a2f;
+    --dmg-cold: #7ad4ff;
+
+    --display: "Pixelify Sans", "Segoe UI", system-ui, sans-serif;
+    --logo: "Silkscreen", "Pixelify Sans", monospace;
+    --body: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+    --maxw: 1080px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #17182a 0%, var(--screen-bezel) 55%, var(--bezel-2) 100%);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img, .tile, .sprite { image-rendering: pixelated; }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 20px 96px;
+  }
+
+  a { color: var(--cursor); }
+
+  ::selection { background: var(--cursor); color: var(--panel-lo); }
+
+  /* ---------- window box: the hero component ---------- */
+  .win {
+    position: relative;
+    background: var(--panel-fill);
+    border: 1px solid var(--panel-edge);
+    box-shadow:
+      inset 2px 2px 0 var(--panel-hi),
+      inset -2px -2px 0 var(--panel-lo),
+      inset 0 0 0 4px var(--panel-fill);
+    padding: 22px 24px;
+  }
+  .win.alt { background: var(--panel-fill-alt); }
+  .win.msg {
+    background: #0f1428;
+    box-shadow:
+      inset 2px 2px 0 #2b3760,
+      inset -2px -2px 0 #05070f,
+      inset 0 0 0 4px #0f1428;
+  }
+
+  /* ---------- type ---------- */
+  h1, h2, h3, .eyebrow, .cursor-line { text-wrap: balance; }
+
+  .eyebrow {
+    font-family: var(--logo);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--cursor);
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 var(--ink-shadow);
+    margin: 0 0 10px;
+  }
+
+  h2.section {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(26px, 4.5vw, 40px);
+    line-height: 1.05;
+    margin: 0 0 6px;
+    text-shadow: 3px 3px 0 var(--ink-shadow);
+  }
+  .section-sub {
+    font-family: var(--body);
+    color: var(--ink-dim);
+    max-width: 62ch;
+    margin: 0 0 26px;
+  }
+
+  h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 20px;
+    margin: 0 0 10px;
+    color: var(--ink);
+    text-shadow: 2px 2px 0 var(--ink-shadow);
+  }
+
+  p { max-width: 68ch; }
+  strong { color: var(--ink); }
+  .dim { color: var(--ink-dim); }
+
+  section { margin-top: 72px; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    margin-top: 40px;
+    text-align: center;
+    padding: 54px 24px 48px;
+    background:
+      repeating-linear-gradient(0deg, #14121f 0 15px, #16142200 15px 16px),
+      radial-gradient(80% 120% at 50% 120%, rgba(255,176,56,.18), transparent 60%),
+      var(--wall);
+    border: 1px solid var(--panel-edge);
+    box-shadow: inset 2px 2px 0 var(--wall-top), inset -3px -3px 0 #0a0913;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero .torch {
+    position: absolute; width: 10px; height: 10px; border-radius: 50%;
+    background: var(--torch); filter: blur(3px);
+    box-shadow: 0 0 22px 10px rgba(255,176,56,.55);
+    animation: flicker 1.6s steps(3) infinite;
+  }
+  .hero .torch.l { left: 34px; top: 46px; }
+  .hero .torch.r { right: 34px; top: 46px; }
+  @keyframes flicker { 0%,100%{opacity:.85} 33%{opacity:.55} 66%{opacity:1} }
+
+  .logo {
+    font-family: var(--logo);
+    font-weight: 700;
+    font-size: clamp(30px, 8vw, 68px);
+    letter-spacing: 2px;
+    margin: 0;
+    color: var(--ink);
+    text-shadow:
+      4px 4px 0 var(--ink-shadow),
+      0 0 26px rgba(91,116,184,.5);
+  }
+  .logo .k { color: var(--gold); }
+  .hero .tagline {
+    font-family: var(--display);
+    font-size: clamp(14px, 2.4vw, 20px);
+    color: var(--wizard);
+    margin: 14px 0 4px;
+    text-shadow: 2px 2px 0 var(--ink-shadow);
+  }
+  .hero .meta {
+    font-family: var(--body);
+    color: var(--ink-dim);
+    font-size: 13px;
+    margin: 0 0 26px;
+  }
+  .press {
+    font-family: var(--display);
+    color: var(--cursor);
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 0 var(--ink-shadow);
+    animation: blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- generic layout helpers ---------- */
+  .grid { display: grid; gap: 18px; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 760px) { .cols-2, .cols-3 { grid-template-columns: 1fr; } }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean li { position: relative; padding-left: 22px; margin: 7px 0; }
+  ul.clean li::before {
+    content: "▶"; position: absolute; left: 0; top: 1px;
+    color: var(--cursor); font-size: 11px;
+  }
+
+  .do li::before { content: "✓"; color: var(--good); }
+  .dont li::before { content: "✕"; color: var(--danger); }
+
+  /* ---------- palette swatches ---------- */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; }
+  .sw { border: 1px solid var(--panel-lo); }
+  .sw .chip { height: 46px; border-bottom: 1px solid rgba(0,0,0,.4); }
+  .sw .lbl { padding: 7px 9px; background: #0f1428; }
+  .sw .name { font-size: 12px; color: var(--ink); }
+  .sw .hex { font-size: 11px; color: var(--ink-dim); }
+
+  /* ---------- dungeon mock ---------- */
+  .mockrow { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 820px){ .mockrow { grid-template-columns: 1fr; } }
+
+  .screen {
+    background: var(--fog);
+    border: 3px solid #0a0913;
+    box-shadow: inset 0 0 0 1px var(--panel-lo), 0 6px 0 #05060c;
+    padding: 12px;
+  }
+  .caplabel { font-family: var(--display); font-size: 13px; color: var(--ink-dim); margin: 0 0 8px; }
+
+  .dungeon {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 0;
+    width: 100%;
+    aspect-ratio: 12 / 8;
+  }
+  .tile { position: relative; }
+  .tile.wall { background: var(--wall); box-shadow: inset 0 3px 0 var(--wall-top); }
+  .tile.floor { background: var(--floor); }
+  .tile.floor.b { background: var(--floor-alt); }
+  .tile.fog { background: var(--fog); }
+  .glyph {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-family: var(--display); font-size: 14px; font-weight: 700;
+    text-shadow: 1px 1px 0 var(--ink-shadow);
+  }
+  .g-player { color: var(--gold); }
+  .g-mon { color: var(--fighter); }
+  .g-mon2 { color: var(--rogue); }
+  .g-item { color: var(--dmg-cold); }
+  .g-stairs { color: var(--gold); text-shadow: 0 0 8px var(--gold); }
+
+  .before-grid {
+    font-family: var(--body);
+    font-size: 13px;
+    line-height: 1.35;
+    color: #6f7aa0;
+    white-space: pre;
+    margin: 0;
+    letter-spacing: 2px;
+  }
+
+  /* ---------- battle HUD mock ---------- */
+  .battle { display: grid; gap: 12px; }
+  .combatant { display: flex; align-items: center; gap: 12px; }
+  .portrait {
+    width: 54px; height: 54px; flex: none;
+    display: grid; place-items: center;
+    font-family: var(--display); font-weight: 700; font-size: 24px;
+    border: 1px solid var(--panel-edge);
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,.25), inset -2px -2px 0 rgba(0,0,0,.5);
+    text-shadow: 1px 1px 0 rgba(0,0,0,.6);
+  }
+  .p-orc { background: var(--fighter); color: #ffe3de; }
+  .p-fighter { background: var(--fighter); color: #ffe3de; }
+  .cinfo { flex: 1; min-width: 0; }
+  .cname { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+  .cname .tag { color: var(--ink-dim); font-size: 11px; }
+
+  .hpbar {
+    height: 12px; background: var(--bar-track);
+    border: 1px solid #05070f;
+    box-shadow: inset 1px 1px 0 rgba(0,0,0,.6);
+    position: relative; overflow: hidden;
+  }
+  .hpfill { height: 100%; transition: width .5s ease-out; }
+  .hp-hi { background: var(--hp-high); }
+  .hp-mid { background: var(--hp-mid); }
+  .hp-lo { background: var(--hp-low); }
+  .hpnum { font-size: 11px; color: var(--ink-dim); margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+  .cmd {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    margin-top: 4px;
+  }
+  .cmd .opt {
+    font-family: var(--display); font-size: 14px;
+    padding: 7px 10px 7px 24px; position: relative;
+    background: #0f1428; border: 1px solid #2b3760;
+    box-shadow: inset 1px 1px 0 #34406e;
+  }
+  .cmd .opt.sel { color: var(--cursor); }
+  .cmd .opt.sel::before {
+    content: "▶"; position: absolute; left: 8px; top: 7px;
+    color: var(--cursor); font-size: 11px;
+    animation: blink 1.05s steps(1) infinite;
+  }
+  .cmd .opt.dis { color: #55608a; }
+
+  .log { font-size: 13px; }
+  .log .line { color: var(--ink); }
+  .log .num { color: var(--danger); font-weight: 700; }
+  .log .heal { color: var(--good); font-weight: 700; }
+
+  /* ---------- type sample ---------- */
+  .typesample .row { border-top: 1px solid var(--panel-lo); padding: 14px 0; }
+  .typesample .row:first-child { border-top: none; }
+  .typesample .use { font-size: 12px; color: var(--ink-dim); font-family: var(--body); margin-bottom: 6px; }
+  .s-logo { font-family: var(--logo); font-size: 30px; color: var(--ink); text-shadow: 3px 3px 0 var(--ink-shadow); }
+  .s-display { font-family: var(--display); font-size: 26px; font-weight: 600; }
+  .s-body { font-family: var(--body); font-size: 15px; color: var(--ink); }
+  .s-num { font-family: var(--body); font-size: 15px; font-variant-numeric: tabular-nums; letter-spacing: 1px; }
+
+  /* ---------- damage type pills ---------- */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .pill {
+    font-family: var(--display); font-size: 13px;
+    padding: 5px 11px; border: 1px solid var(--panel-lo);
+    background: #0f1428; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .pill .dot { width: 11px; height: 11px; border: 1px solid rgba(0,0,0,.5); }
+
+  /* ---------- screen table ---------- */
+  .scrs { display: grid; gap: 12px; }
+  .scr { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: start; padding: 14px 0; border-top: 1px solid var(--panel-lo); }
+  .scr:first-child { border-top: none; }
+  .scr .mode { font-family: var(--display); font-size: 15px; color: var(--cursor); }
+  .scr .modetag { font-family: var(--body); font-size: 11px; color: var(--ink-dim); display: block; margin-top: 2px; }
+  .scr .now { color: var(--ink-dim); }
+  .scr .arrow { color: var(--cursor); }
+  @media (max-width: 620px){ .scr { grid-template-columns: 1fr; gap: 6px; } }
+
+  /* ---------- checklist ---------- */
+  .check li { display: flex; gap: 10px; align-items: baseline; margin: 8px 0; }
+  .check .box { color: var(--cursor); font-family: var(--display); font-size: 13px; flex: none; }
+
+  /* ---------- refs ---------- */
+  .refs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ref { font-family: var(--display); font-size: 13px; padding: 6px 12px; background: #0f1428; border: 1px solid #2b3760; box-shadow: inset 1px 1px 0 #34406e; }
+
+  footer {
+    margin-top: 80px; text-align: center; color: var(--ink-dim);
+    font-size: 12px; font-family: var(--body);
+  }
+  footer .p { font-family: var(--display); color: var(--cursor); font-size: 13px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="torch l"></span><span class="torch r"></span>
+    <p class="eyebrow" style="margin-bottom:18px;">Visual Design Brief · For Claude Design</p>
+    <h1 class="logo">DUNGEON<span class="k">LIKE</span></h1>
+    <p class="tagline">16-bit GBA Direction</p>
+    <p class="meta">Re-skin only · engine, rules &amp; state machine stay untouched · 2026-08-18</p>
+    <p class="press">▶ PRESS START</p>
+  </header>
+
+  <!-- TLDR -->
+  <section id="tldr">
+    <p class="eyebrow">Mission</p>
+    <h2 class="section">Make it a cartridge, not a web app</h2>
+    <p class="section-sub">Dungeonlike is a small, fully-working browser roguelike. The logic is done — the visuals don't exist yet. Today the dungeon is raw ASCII in a <code>&lt;pre&gt;</code> and every other screen is unstyled HTML. Give it the look and feel of a Game Boy Advance dungeon-crawler: chunky, warm, high-contrast, legible-at-a-glance.</p>
+    <div class="win">
+      <p style="margin-top:0;"><strong>North star:</strong> <em>A cozy-but-dangerous SRD dungeon crawl that looks like it shipped on a GBA cartridge.</em></p>
+      <p class="dim" style="margin-bottom:6px;">Steal the UI language from these:</p>
+      <div class="refs">
+        <span class="ref">Golden Sun</span>
+        <span class="ref">Fire Emblem (GBA)</span>
+        <span class="ref">FF Tactics Advance</span>
+        <span class="ref">Pokémon Emerald</span>
+        <span class="ref">The Minish Cap</span>
+        <span class="ref">Advance Wars</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE GAME -->
+  <section id="game">
+    <p class="eyebrow">What we're dressing</p>
+    <h2 class="section">Five screens, one small roster</h2>
+    <p class="section-sub">The renderer switches on <code>state.mode</code>. This is the entire content set — size the art work to it.</p>
+    <div class="grid cols-2">
+      <div class="win alt">
+        <h3>Roster to illustrate</h3>
+        <ul class="clean">
+          <li><strong>3 classes</strong> — Fighter (Longsword / Second Wind), Wizard (Fire Bolt / Ray of Frost), Rogue (Rapier / Sneak Attack)</li>
+          <li><strong>5 monsters</strong> — Goblin, Skeleton, Giant Rat, Kobold, Orc</li>
+          <li><strong>1 item</strong> — Potion of Healing</li>
+          <li><strong>Dungeon tiles</strong> — wall, floor, stairs-down, player</li>
+        </ul>
+      </div>
+      <div class="win alt">
+        <h3>Four damage types</h3>
+        <p class="dim" style="margin-top:0;">Each wants its own color <em>and</em> icon shape — never color alone.</p>
+        <div class="pills">
+          <span class="pill"><span class="dot" style="background:var(--dmg-slashing)"></span>Slashing</span>
+          <span class="pill"><span class="dot" style="background:var(--dmg-piercing)"></span>Piercing</span>
+          <span class="pill"><span class="dot" style="background:var(--dmg-fire)"></span>Fire</span>
+          <span class="pill"><span class="dot" style="background:var(--dmg-cold)"></span>Cold</span>
+        </div>
+        <p class="dim" style="margin-bottom:0;">Dungeon grid is <strong>40 × 20 tiles</strong>. Battles are 1-v-1, turn-based, Pokémon-style.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE MOCK: DUNGEON -->
+  <section id="dungeon">
+    <p class="eyebrow">Screen · Exploring</p>
+    <h2 class="section">From glyphs to tiles</h2>
+    <p class="section-sub">Keep the information; upgrade the presentation. Every ASCII glyph becomes a 16×16 sprite/tile with torchlight and fog of war. Center the camera on <span style="color:var(--gold)">@</span> and scroll.</p>
+    <div class="mockrow">
+      <div class="screen">
+        <p class="caplabel">Today — ASCII in a &lt;pre&gt;</p>
+        <pre class="before-grid">##########
+#........#
+#..g...!..###
+#....#......#
+#.@..#...s..#
+#....#......#
+#........>..#
+############# </pre>
+      </div>
+      <div class="screen">
+        <p class="caplabel">Target — tiled &amp; lit</p>
+        <div class="dungeon" id="dg" aria-label="Mock dungeon showing tiled floors, walls, player, monsters, a potion and glowing stairs"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE MOCK: BATTLE -->
+  <section id="battle">
+    <p class="eyebrow">Screen · Battle</p>
+    <h2 class="section">The marquee screen</h2>
+    <p class="section-sub">Golden Sun / Pokémon layout: enemy up top, player below, a 2×2 command window, and a message box that plays the combat log line-by-line. HP bars drain on a short tween; hits flash, shake, and float a damage number.</p>
+    <div class="win" style="max-width:560px;">
+      <div class="battle">
+        <div class="combatant">
+          <div class="portrait p-orc">o</div>
+          <div class="cinfo">
+            <div class="cname"><span>Orc</span><span class="tag">AC 13</span></div>
+            <div class="hpbar"><div class="hpfill hp-lo" style="width:22%"></div></div>
+            <div class="hpnum">HP 3 / 15</div>
+          </div>
+        </div>
+        <div class="combatant">
+          <div class="portrait p-fighter">@</div>
+          <div class="cinfo">
+            <div class="cname"><span>Fighter</span><span class="tag">AC 16</span></div>
+            <div class="hpbar"><div class="hpfill hp-mid" style="width:58%"></div></div>
+            <div class="hpnum">HP 7 / 12</div>
+          </div>
+        </div>
+        <div class="cmd">
+          <div class="opt sel">Longsword</div>
+          <div class="opt">Second Wind</div>
+          <div class="opt dis">Item</div>
+          <div class="opt">Flee</div>
+        </div>
+        <div class="win msg log" style="padding:12px 14px;">
+          <div class="line">You hit the Orc for <span class="num">6</span> damage.</div>
+          <div class="line dim">The Orc swings its Greataxe…</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALETTE -->
+  <section id="palette">
+    <p class="eyebrow">System · Color</p>
+    <h2 class="section">A locked, LCD-flavored palette</h2>
+    <p class="section-sub">Saturated but slightly muted, like a backlit GBA screen. Ship these as CSS custom properties so the whole kit stays consistent. Below are the core roles — the full token table (environment, class &amp; damage-type accents) lives in the brief.</p>
+
+    <h3 style="margin-bottom:14px;">UI chrome — the window box</h3>
+    <div class="swatches" style="margin-bottom:26px;">
+      <div class="sw"><div class="chip" style="background:#243052"></div><div class="lbl"><div class="name">panel-fill</div><div class="hex">#243052</div></div></div>
+      <div class="sw"><div class="chip" style="background:#5b74b8"></div><div class="lbl"><div class="name">panel-hi</div><div class="hex">#5b74b8</div></div></div>
+      <div class="sw"><div class="chip" style="background:#111832"></div><div class="lbl"><div class="name">panel-lo</div><div class="hex">#111832</div></div></div>
+      <div class="sw"><div class="chip" style="background:#f2f4ff"></div><div class="lbl"><div class="name">ink</div><div class="hex">#f2f4ff</div></div></div>
+      <div class="sw"><div class="chip" style="background:#ffd23f"></div><div class="lbl"><div class="name">cursor / gold</div><div class="hex">#ffd23f</div></div></div>
+    </div>
+
+    <h3 style="margin-bottom:14px;">Environment &amp; state</h3>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#3a3550"></div><div class="lbl"><div class="name">floor</div><div class="hex">#3a3550</div></div></div>
+      <div class="sw"><div class="chip" style="background:#1c1a2b"></div><div class="lbl"><div class="name">wall</div><div class="hex">#1c1a2b</div></div></div>
+      <div class="sw"><div class="chip" style="background:#ffb038"></div><div class="lbl"><div class="name">torch</div><div class="hex">#ffb038</div></div></div>
+      <div class="sw"><div class="chip" style="background:#57d977"></div><div class="lbl"><div class="name">hp-high</div><div class="hex">#57d977</div></div></div>
+      <div class="sw"><div class="chip" style="background:#ffd23f"></div><div class="lbl"><div class="name">hp-mid</div><div class="hex">#ffd23f</div></div></div>
+      <div class="sw"><div class="chip" style="background:#f0523f"></div><div class="lbl"><div class="name">hp-low / danger</div><div class="hex">#f0523f</div></div></div>
+    </div>
+  </section>
+
+  <!-- TYPE -->
+  <section id="type">
+    <p class="eyebrow">System · Type</p>
+    <h2 class="section">Pixel-crisp, two roles</h2>
+    <p class="section-sub">Everything renders at native pixel size or integer multiples — no anti-aliasing, no fractional scaling. A 1px hard drop-shadow keeps text legible over dungeon art. Stats and combat numbers get a tabular treatment so they don't jitter as they change.</p>
+    <div class="win typesample">
+      <div class="row">
+        <div class="use">Logo / big display — Silkscreen (avoid NES-blocky Press Start 2P)</div>
+        <div class="s-logo">DUNGEONLIKE</div>
+      </div>
+      <div class="row">
+        <div class="use">Headers / menus — Pixelify Sans</div>
+        <div class="s-display">Choose your class</div>
+      </div>
+      <div class="row">
+        <div class="use">Body / spec — JetBrains Mono (console-flavored, readable)</div>
+        <div class="s-body">You walk into the goblin and combat begins. Choose Attack, Ability, Item, or Flee.</div>
+      </div>
+      <div class="row">
+        <div class="use">Numbers — tabular, monospaced (HP · AC · dice · damage)</div>
+        <div class="s-num">HP 7 / 12 · AC 16 · 1d8+2 · −6</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENS -->
+  <section id="screens">
+    <p class="eyebrow">Direction · Every screen</p>
+    <h2 class="section">Now → target</h2>
+    <div class="win scrs">
+      <div class="scr">
+        <div><span class="mode">Title</span><span class="modetag">new — recommended</span></div>
+        <div><span class="now">No title screen today.</span> <span class="arrow">→</span> Pixel logo over a dim, torch-lit dungeon backdrop with a blinking <span style="color:var(--cursor)">▶ PRESS START</span>. Big tone-setter, low effort.</div>
+      </div>
+      <div class="scr">
+        <div><span class="mode">Character Select</span><span class="modetag">character-select</span></div>
+        <div><span class="now">"Choose your class" + 3 text buttons.</span> <span class="arrow">→</span> Three class cards with tinted pixel portraits + stat chips (HP / AC / attack / ability); focused card gets the gold cursor and a raised bevel.</div>
+      </div>
+      <div class="scr">
+        <div><span class="mode">Dungeon</span><span class="modetag">exploring</span></div>
+        <div><span class="now">40×20 ASCII grid in a &lt;pre&gt;.</span> <span class="arrow">→</span> Tile-rendered map, camera scrolls on <span style="color:var(--gold)">@</span>, torch-radius fog of war, HUD window box with HP bar + potion icons.</div>
+      </div>
+      <div class="scr">
+        <div><span class="mode">Battle</span><span class="modetag">battle</span></div>
+        <div><span class="now">Two HP lines + 4 buttons + a log.</span> <span class="arrow">→</span> Enemy/player portraits, stat chips, 2×2 command window, message box; hit flash, screen shake, floating damage numbers, HP-bar drain.</div>
+      </div>
+      <div class="scr">
+        <div><span class="mode">Victory</span><span class="modetag">victory</span></div>
+        <div><span class="now">"You found the stairs down. Victory!"</span> <span class="arrow">→</span> Full-screen <strong style="color:var(--good)">VICTORY</strong> in the display font, warm lit backdrop, player over glowing stairs, <span style="color:var(--cursor)">▶ PLAY AGAIN</span>.</div>
+      </div>
+      <div class="scr">
+        <div><span class="mode">Game Over</span><span class="modetag">game-over</span></div>
+        <div><span class="now">"You have died."</span> <span class="arrow">→</span> Desaturated screen, <strong style="color:var(--danger)">YOU DIED</strong> in the display font, tombstone/fallen sprite, <span style="color:var(--cursor)">▶ TRY AGAIN</span>.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTION + A11Y -->
+  <section id="feel">
+    <p class="eyebrow">Feel &amp; care</p>
+    <h2 class="section">Snappy, cheap, legible</h2>
+    <div class="grid cols-2">
+      <div class="win alt">
+        <h3>Motion — all CSS, no engine</h3>
+        <ul class="clean">
+          <li>Transitions: hard cut or a 4–6 frame fade/wipe — no smooth slides</li>
+          <li>Cursor blinks ~2Hz; snaps tile-to-tile</li>
+          <li>Log text crawls ~30–60 chars/sec, snaps in on keypress</li>
+          <li>HP bar drain — the one continuous tween (~300–500ms)</li>
+          <li>Hits: white/red flash + a few-px shake + floating number, all ≤300ms</li>
+        </ul>
+      </div>
+      <div class="win alt">
+        <h3>Accessibility</h3>
+        <ul class="clean">
+          <li>1px ink-shadow on all text over dungeon art</li>
+          <li>Never color-alone: HP shows numeric <code>cur/max</code>; damage types carry an icon shape</li>
+          <li>Focus always visible — gold cursor + selected bevel</li>
+          <li>Integer-scale the 240×160 virtual screen so pixels stay crisp on high-DPI</li>
+          <li>Every action works by keyboard (arrows/WASD + Enter, already wired) and pointer</li>
+          <li>Honor <code>prefers-reduced-motion</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DO / DONT -->
+  <section id="guardrails">
+    <p class="eyebrow">Guardrails</p>
+    <h2 class="section">Do / Don't</h2>
+    <div class="grid cols-2">
+      <div class="win">
+        <h3 style="color:var(--good)">Do</h3>
+        <ul class="clean do">
+          <li>Frame everything in beveled window boxes — chrome that feels physical</li>
+          <li>Commit to a small, saturated palette and reuse it religiously</li>
+          <li>Keep pixels square and crisp at every scale</li>
+          <li>Make HP, damage &amp; stats read instantly and animate satisfyingly</li>
+          <li>Add torchlight, mood, and a little grime</li>
+        </ul>
+      </div>
+      <div class="win">
+        <h3 style="color:var(--danger)">Don't</h3>
+        <ul class="clean dont">
+          <li>Ship flat modern web UI, thin borders, or soft drop shadows</li>
+          <li>Use emoji, system fonts, or anti-aliased "smooth" scaling</li>
+          <li>Go full NES/8-bit blocky — we're 16-bit, richer shading</li>
+          <li>Rely on color alone for HP or damage-type meaning</li>
+          <li>Touch game rules, dice math, or the state machine</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section id="deliverables">
+    <p class="eyebrow">The ask</p>
+    <h2 class="section">Deliverables for the pass</h2>
+    <div class="win msg">
+      <ul class="clean check" style="list-style:none;">
+        <li><span class="box">☐</span><span>Locked palette tokens + <code>theme.css</code></span></li>
+        <li><span class="box">☐</span><span>Chosen + self-hosted pixel font(s): body + display</span></li>
+        <li><span class="box">☐</span><span>UI kit: window box · menu + cursor · HP bar · stat chip · command menu · message window</span></li>
+        <li><span class="box">☐</span><span>16×16 tile set: wall (+ variants) · floor (+ alt) · stairs · fog</span></li>
+        <li><span class="box">☐</span><span>Sprites: player (×3 class tints) · 5 monsters · potion · icon set (AC / HP / dice / 4 damage types)</span></li>
+        <li><span class="box">☐</span><span>Portraits: 3 classes, 5 monsters (battle + select busts)</span></li>
+        <li><span class="box">☐</span><span>Screen comps: Title · Character Select · Dungeon · Battle · Victory · Game Over</span></li>
+        <li><span class="box">☐</span><span>Motion spec applied: transitions · cursor blink · HP drain · hit flash / shake / floating numbers</span></li>
+        <li><span class="box">☐</span><span>Accessibility check: contrast · non-color-coded meaning · visible focus</span></li>
+      </ul>
+    </div>
+    <p class="dim" style="margin-top:20px;">Implementation stays in <code>src/components/*</code> + CSS/assets — React 18 + Vite + TypeScript, no new game framework. Preserve the existing <code>data-testid</code>s (<code>dungeon-grid</code>, <code>battle-log</code>) and button names, or update tests in lockstep. The monster/item <code>glyph</code> fields already in the data map cleanly to sprite indices — keep the renderer data-driven.</p>
+  </section>
+
+  <footer>
+    <p class="p">▶ END OF BRIEF</p>
+    <p>Full written spec: <code>docs/design/2026-08-18-gba-visual-design-brief.md</code></p>
+  </footer>
+
+</div>
+
+<script>
+  // Build the tiled dungeon mock: 12 x 8. W=wall, .=floor, ,=alt floor,
+  // @=player, o/s=monster, !=potion, >=stairs, space=fog
+  const map = [
+    "WWWWWWWWWWWW",
+    "W..,..WW..,W",
+    "W.@,.....o.W",
+    "W...WW.,...W",
+    "W.,...WW.s.W",
+    "W..!,...,..W",
+    "W..,..,..>.W",
+    "WWWWWWWWWWWW",
+  ];
+  const dg = document.getElementById('dg');
+  const glyphs = {
+    '@': ['@','g-player'],
+    'o': ['o','g-mon'],
+    's': ['s','g-mon2'],
+    '!': ['!','g-item'],
+    '>': ['>','g-stairs'],
+  };
+  let alt = false;
+  for (const row of map) {
+    for (const ch of row) {
+      const t = document.createElement('div');
+      t.className = 'tile';
+      if (ch === 'W') t.classList.add('wall');
+      else if (ch === ' ') t.classList.add('fog');
+      else {
+        t.classList.add('floor');
+        if (ch === ',' ) t.classList.add('b');
+        if (glyphs[ch]) {
+          const g = document.createElement('span');
+          g.className = 'glyph ' + glyphs[ch][1];
+          g.textContent = glyphs[ch][0];
+          t.appendChild(g);
+        }
+      }
+      dg.appendChild(t);
+    }
+  }
+
+  // Gentle demo of the HP-drain tween on the enemy bar, once, on load.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const enemy = document.querySelector('.hpfill.hp-lo');
+    if (enemy) {
+      enemy.style.width = '40%';
+      setTimeout(() => { enemy.style.width = '22%'; }, 700);
+    }
+  }
+</script>
